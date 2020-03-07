@@ -2,10 +2,12 @@ package springbook.user.domain;
 
 import java.sql.SQLException;
 
-public class Entry {
+public class UserDaoTest {
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        UserDao dao = new NUserDao();
-        //UserDao dao = new DUserDao();
+        ConnectionMaker connectionMaker = new DConnectionMaker();
+        //ConnectionMaker connectionMaker = new NConnectionMaker();
+
+        UserDao dao = new UserDao(connectionMaker);
 
         User user = new User();
         user.setId("dbsal");
