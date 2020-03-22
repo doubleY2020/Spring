@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--빈의 설정파일 : beans-->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <!--메소드 이름(빈의 이름):id-->
-    <!--클래스 이름(빈의 클래스):class-->
     <bean id="userDao" class="springbook.user.domain.UserDao">
-        <!--프로퍼티의 이름(수정자 메소드의 프로퍼티 이름):name-->
-        <!--오브젝트의 빈 이름(주입할 오브젝트를 정의한 빈):ref-->
-        <property name="connectionMaker" ref="connectionMaker" />
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="connectionMaker" class="springbook.user.domain.DConnectionMaker"/>
-
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+        <property name="driverClass" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost/springbook"/>
+        <property name="username" value="spring"/>
+        <property name="password" value="sss123"/>
+    </bean>
 
 </beans>
