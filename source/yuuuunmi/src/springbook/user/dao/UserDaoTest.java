@@ -1,7 +1,7 @@
 package springbook.user.dao;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.JUnitCore;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,20 +13,26 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class UserDaoTest {
+    private UserDao dao;
+    private User user1;
+    private User user2;
+    private User user3;
 
-    public static void main(String[] args) {
-        JUnitCore.main("springbook.user.dao.UserDaoTest");
+    @Before
+    public void setUp() {
+        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
+
+        this.dao = context.getBean("userDao", UserDao.class);
+
+        this.user1 = new User("irene", "아이린", "irenenene");
+        this.user2 = new User("sana", "사나", "ssssaaa");
+        this.user3 = new User("yeji", "예지", "yyyyhea");
+
     }
+
 
     @Test
     public void addAndGet() throws SQLException {
-
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-
-        UserDao dao = context.getBean("userDao", UserDao.class);
-
-        User user1 = new User("irene", "아이린", "irenenene");
-        User user2 = new User("sana", "사나", "ssssaaa");
 
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
@@ -47,13 +53,6 @@ public class UserDaoTest {
 
     @Test
     public void count() throws SQLException {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-
-        UserDao dao = context.getBean("userDao", UserDao.class);
-
-        User user1 = new User("irene", "아이린", "irenenene");
-        User user2 = new User("sana", "사나", "ssssaaa");
-        User user3 = new User("yeji", "예지", "yyyyhea");
 
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
@@ -71,10 +70,6 @@ public class UserDaoTest {
 
     @Test(expected = EmptyResultDataAccessException.class)
     public void getUserFailure() throws SQLException {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-
-        UserDao dao = context.getBean("userDao", UserDao.class);
-
         dao.deleteAll();
         assertThat(dao.getCount(), is(0));
 
