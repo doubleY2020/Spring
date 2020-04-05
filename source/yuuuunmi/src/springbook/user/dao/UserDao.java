@@ -1,4 +1,6 @@
-package springbook.user.domain;
+package springbook.user.dao;
+
+import springbook.user.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
