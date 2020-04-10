@@ -7,24 +7,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.context.ContextConfiguration;
 import user.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
 public class UserDaoTest {
     private UserDao dao;
+
     private User user1;
     private User user2;
     private User user3;
 
     @Before
     public void setUp(){
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
-        this.dao = context.getBean("userDao",UserDao.class);
+        dao = new UserDao();
+        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/test?useSSL=false", "root", "root123!", true);
+        dao.setDataSource(dataSource);
 
         this.user1 = new User("jungin1", "김디일", "pw");
         this.user2 = new User("jungin2", "김디이", "pw");
