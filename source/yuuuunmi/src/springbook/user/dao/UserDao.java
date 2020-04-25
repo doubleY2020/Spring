@@ -14,12 +14,12 @@ public class UserDao {
     private DataSource dataSource;
     private JdbcContext jdbcContext;
 
-    public void setJdbcContext(JdbcContext jdbcContext) {
-        this.jdbcContext = jdbcContext;
-    }
-
     public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+
+        this.jdbcContext = new JdbcContext();
+        jdbcContext.setDataSource(dataSource);
+
+        this.dataSource = dataSource; // 기존 코드 유지를 위함
     }
 
     public void add(final User user) throws SQLException {
