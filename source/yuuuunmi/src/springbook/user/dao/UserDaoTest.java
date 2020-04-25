@@ -2,17 +2,17 @@ package springbook.user.dao;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class UserDaoTest {
+
     private UserDao dao;
     private User user1;
     private User user2;
@@ -20,9 +20,10 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        ApplicationContext context = new GenericXmlApplicationContext("applicationContext.xml");
 
-        this.dao = context.getBean("userDao", UserDao.class);
+        this.dao = new UserDao();
+        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/springbook?serverTimezone=UTC", "spring", "sss123", true);
+        dao.setDataSource(dataSource);
 
         this.user1 = new User("irene", "아이린", "irenenene");
         this.user2 = new User("sana", "사나", "ssssaaa");
@@ -35,19 +36,20 @@ public class UserDaoTest {
     public void addAndGet() throws SQLException {
 
         dao.deleteAll();
-        assertThat(dao.getCount(), is(0));
+        assertEquals(dao.getCount(), 0);
 
         dao.add(user1);
         dao.add(user2);
-        assertThat(dao.getCount(), is(2));
+        assertEquals(dao.getCount(), 2);
+
 
         User userget1 = dao.get(user1.getId());
-        assertThat(userget1.getName(), is(user1.getName()));
-        assertThat(userget1.getPassword(), is(user1.getPassword()));
+        assertEquals(userget1.getName(), user1.getName());
+        assertEquals(userget1.getPassword(), user1.getPassword());
 
         User userget2 = dao.get(user2.getId());
-        assertThat(userget2.getName(), is(user2.getName()));
-        assertThat(userget2.getPassword(), is(user2.getPassword()));
+        assertEquals(userget2.getName(), user2.getName());
+        assertEquals(userget2.getPassword(), user2.getPassword());
 
     }
 
@@ -55,23 +57,24 @@ public class UserDaoTest {
     public void count() throws SQLException {
 
         dao.deleteAll();
-        assertThat(dao.getCount(), is(0));
+        assertEquals(dao.getCount(), 0);
+
 
         dao.add(user1);
-        assertThat(dao.getCount(), is(1));
+        assertEquals(dao.getCount(), 1);
 
         dao.add(user2);
-        assertThat(dao.getCount(), is(2));
+        assertEquals(dao.getCount(), 2);
 
         dao.add(user3);
-        assertThat(dao.getCount(), is(3));
+        assertEquals(dao.getCount(), 3);
 
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
     public void getUserFailure() throws SQLException {
         dao.deleteAll();
-        assertThat(dao.getCount(), is(0));
+        assertEquals(dao.getCount(), 0);
 
         dao.get("unknown_id");
     }
