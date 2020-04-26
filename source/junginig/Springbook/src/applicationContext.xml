@@ -10,9 +10,9 @@
         <property name="username" value="root" />
         <property name="password" value="root123!" />
      </bean>
+
     <bean id="userDao" class="user.dao.UserDao">
         <property name="dataSource" ref="dataSource"/>
     </bean>
-
 
 </beans>
