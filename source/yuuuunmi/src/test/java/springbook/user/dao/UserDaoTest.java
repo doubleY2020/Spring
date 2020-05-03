@@ -10,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.domain.User;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -41,7 +40,7 @@ public class UserDaoTest {
 
 
     @Test
-    public void addAndGet() throws SQLException {
+    public void addAndGet() {
 
         dao.deleteAll();
         assertEquals(dao.getCount(), 0);
@@ -62,7 +61,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void count() throws SQLException {
+    public void count() {
 
         dao.deleteAll();
         assertEquals(dao.getCount(), 0);
@@ -80,7 +79,7 @@ public class UserDaoTest {
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
-    public void getUserFailure() throws SQLException {
+    public void getUserFailure() {
         dao.deleteAll();
         assertEquals(dao.getCount(), 0);
 
