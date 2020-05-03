@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+group 'doubley'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs "src/main/resources"
+        }
+    }
+}
+
+def version = [
+        spring: '5.2.4.RELEASE',
+        junit: '4.13',
+        mysqlconnector: '8.0.19'
+]
+
+dependencies {
+    compile "org.springframework:spring-core:${version.spring}"
+    compile "org.springframework:spring-aop:${version.spring}"
+    compile "org.springframework:spring-beans:${version.spring}"
+    compile "org.springframework:spring-context:${version.spring}"
+    compile "org.springframework:spring-expression:${version.spring}"
+    compile "org.springframework:spring-jcl:${version.spring}"
+    compile "org.springframework:spring-jdbc:${version.spring}"
+    compile "org.springframework:spring-test:${version.spring}"
+    compile "org.springframework:spring-test:${version.spring}"
+    compile "mysql:mysql-connector-java:${version.mysqlconnector}"
+
+    testCompile "junit:junit:${version.junit}"
+}
