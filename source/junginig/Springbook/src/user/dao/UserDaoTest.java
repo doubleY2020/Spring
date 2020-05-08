@@ -7,17 +7,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import user.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.List;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations="/test-applicationContext.xml")
 public class UserDaoTest {
-    private UserDao dao;
+    @Autowired UserDao dao;
+    @Autowired DataSource dataSource;
+
 
     private User user1;
     private User user2;
@@ -25,10 +34,6 @@ public class UserDaoTest {
 
     @Before
     public void setUp(){
-        dao = new UserDao();
-        DataSource dataSource = new SingleConnectionDataSource("jdbc:mysql://localhost/test?useSSL=false", "root", "root123!", true);
-        dao.setDataSource(dataSource);
-
         this.user1 = new User("jaja", "김디일", "pw");
         this.user2 = new User("mama", "김디이", "pw");
         this.user3 = new User("ejej", "김디삼", "pw");
@@ -107,5 +112,28 @@ public class UserDaoTest {
     }
     public static void main(String[] args) {
         JUnitCore.main("user.dao.UserDaoTest");
+    }
+
+    @Test(expected=DuplicateKeyException.class)
+    public void duplciateKey() {
+        dao.deleteAll();
+
+        dao.add(user1);
+        dao.add(user1);
+    }
+
+    @Test(expected=DuplicateKeyException.class)
+    public void sqlExceptionTranslate() {
+        dao.deleteAll();
+
+        try {
+            dao.add(user1);
+            dao.add(user1);
+        } catch (DuplicateKeyException ex) {
+            SQLException sqlEx = (SQLException)ex.getRootCause();
+            SQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(this.dataSource);
+
+            throw set.translate(null, null, sqlEx);
+        }
     }
 }
