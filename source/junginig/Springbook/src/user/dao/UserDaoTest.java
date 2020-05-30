@@ -15,6 +15,7 @@ import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import user.domain.Level;
 import user.domain.User;
 
 import javax.sql.DataSource;
@@ -34,9 +35,9 @@ public class UserDaoTest {
 
     @Before
     public void setUp(){
-        this.user1 = new User("jaja", "김디일", "pw");
-        this.user2 = new User("mama", "김디이", "pw");
-        this.user3 = new User("ejej", "김디삼", "pw");
+        this.user1 = new User("jaja", "김디일", "pw", Level.BASIC,1,0);
+        this.user2 = new User("mama", "김디이", "pw", Level.SILVER,55,10);
+        this.user3 = new User("ejej", "김디삼", "pw", Level.GOLD,100,40);
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
@@ -58,12 +59,11 @@ public class UserDaoTest {
         assertThat(dao.getCount(), is(2));
 
         User userget1 = dao.get(user1.getId());
-        assertThat(userget1.getName(), is(user1.getName()));
-        assertThat(userget1.getPassword(), is(user1.getPassword()));
+        checkSameUser(userget1, user1);
 
         User userget2 = dao.get(user2.getId());
-        assertThat(userget2.getName(), is(user2.getName()));
-        assertThat(userget2.getPassword(), is(user2.getPassword()));
+        checkSameUser(userget2, user2);
+
     }
 
     @Test
@@ -109,6 +109,9 @@ public class UserDaoTest {
         assertThat(user1.getId(), is(user2.getId()));
         assertThat(user1.getName(), is(user2.getName()));
         assertThat(user1.getPassword(), is(user2.getPassword()));
+        assertThat(user1.getLevel(), is(user2.getLevel()));
+        assertThat(user1.getLogin(), is(user2.getLogin()));
+        assertThat(user1.getRecommend(), is(user2.getRecommend()));
     }
     public static void main(String[] args) {
         JUnitCore.main("user.dao.UserDaoTest");
@@ -135,5 +138,26 @@ public class UserDaoTest {
 
             throw set.translate(null, null, sqlEx);
         }
+    }
+
+    @Test
+    public void update() {
+        dao.deleteAll();
+
+        dao.add(user1);		// 수정할 사용자
+        dao.add(user2);		// 수정하지 않을 사용자
+
+        user1.setName("오민규");
+        user1.setPassword("springno6");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        checkSameUser(user1, user1update);
+        User user2same = dao.get(user2.getId());
+        checkSameUser(user2, user2same);
     }
 }
