@@ -1,5 +1,8 @@
 package springbook.user.service;
 
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -12,21 +15,35 @@ public class UserService {
     public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
     public static final int MIN_RECCOMEND_FOR_GOLD = 30;
 
+    private PlatformTransactionManager transactionManager;
+
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
     }
 
     public void upgradeLevels() {
-        List<User> users = userDao.getAll();
-        for (User user : users) {
+        TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
 
-            if (canUpgradeLevel(user)) {
-                upgradeLevel(user);
+        try {
+            List<User> users = userDao.getAll();
+            for (User user : users) {
+
+                if (canUpgradeLevel(user)) {
+                    upgradeLevel(user);
+                }
             }
+            this.transactionManager.commit(status);
+        } catch (RuntimeException e) {
+            this.transactionManager.rollback(status);
+            throw e;
         }
     }
 
-    private void upgradeLevel(User user) {
+    protected void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
     }
