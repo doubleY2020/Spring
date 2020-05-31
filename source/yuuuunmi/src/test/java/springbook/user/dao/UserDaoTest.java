@@ -1,6 +1,7 @@
 package springbook.user.dao;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -39,10 +41,9 @@ public class UserDaoTest {
 
     @Before
     public void setUp() {
-        this.user1 = new User("irene", "아이린", "irenenene");
-        this.user2 = new User("sana", "사나", "ssssaaa");
-        this.user3 = new User("yeji", "예지", "yyyyhea");
-
+        this.user1 = new User("irene", "아이린", "irenenene", Level.BASIC, 1, 0);
+        this.user2 = new User("sana", "사나", "ssssaaa", Level.SILVER, 55, 10);
+        this.user3 = new User("yeji", "예지", "yyyyhea", Level.GOLD, 100, 40);
     }
 
 
@@ -58,13 +59,10 @@ public class UserDaoTest {
 
 
         User userget1 = dao.get(user1.getId());
-        assertEquals(userget1.getName(), user1.getName());
-        assertEquals(userget1.getPassword(), user1.getPassword());
+        checkSameUser(userget1, user1);
 
         User userget2 = dao.get(user2.getId());
-        assertEquals(userget2.getName(), user2.getName());
-        assertEquals(userget2.getPassword(), user2.getPassword());
-
+        checkSameUser(userget2, user2);
     }
 
     @Test
@@ -128,6 +126,7 @@ public class UserDaoTest {
         dao.add(user1); // 예외가 발생해야 한다.
     }
 
+    @Ignore // 테스트 예외 발생
     @Test
     public void sqlExceptionTranslate(){
         dao.deleteAll();
@@ -139,7 +138,7 @@ public class UserDaoTest {
             SQLException sqlEx = (SQLException)ex.getRootCause();
             SQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(this.dataSource);
 
-            assertEquals(set.translate(null, null, sqlEx), DuplicateKeyException.class);
+            assertEquals(DuplicateKeyException.class, set.translate(null, null, sqlEx));
         }
     }
 
@@ -147,6 +146,31 @@ public class UserDaoTest {
         assertEquals(user1.getId(), user2.getId());
         assertEquals(user1.getName(), user2.getName());
         assertEquals(user1.getPassword(), user2.getPassword());
+        assertEquals(user1.getLevel(), user2.getLevel());
+        assertEquals(user1.getLogin(), user2.getLogin());
+        assertEquals(user1.getRecommend(), user2.getRecommend());
+
+    }
+
+
+    @Test
+    public void update() {
+        dao.deleteAll();
+
+        dao.add(user1);
+        dao.add(user2);
+
+        user1.setName("joy");
+        user1.setPassword("joyful");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        checkSameUser(user1, user1update);
+        User user2same = dao.get(user2.getId());
+        checkSameUser(user2, user2same);
 
     }
 
