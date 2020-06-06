@@ -34,18 +34,19 @@ public class UserServiceTest {
     DataSource dataSource;
     @Autowired
     PlatformTransactionManager transactionManager;
-
+    @Autowired
+    MailSender mailSender;
 
     List<User> users;
 
     @Before
     public void setUp() {
         users = Arrays.asList(
-                new User("tobykim", "김토비", "pw1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0),
-                new User("tobyU", "유토비", "pw2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0),
-                new User("tobyGo", "고토비", "pw3", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD-1),
-                new User("tobySeo", "서토비", "pw4", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD),
-                new User("tobyChoi", "최토비", "pw5", Level.GOLD, 100, Integer.MAX_VALUE)
+                new User("tobykim", "김토비", "pw1", "tobykim@nate.com", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0),
+                new User("tobyU", "유토비", "pw2","tobyu@nate.com", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0),
+                new User("tobyGo", "고토비", "pw3", "tobygo@nate.com",Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD-1),
+                new User("tobySeo", "서토비", "pw4","tobyseo@nate.com", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD),
+                new User("tobyChoi", "최토비", "pw5","tobychoi@nate.com", Level.GOLD, 100, Integer.MAX_VALUE)
         );
     }
 
@@ -100,7 +101,7 @@ public class UserServiceTest {
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
         testUserService.setTransactionManager(transactionManager);
-
+        testUserService.setMailSender(mailSender);
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 

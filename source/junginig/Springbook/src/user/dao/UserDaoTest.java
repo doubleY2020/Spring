@@ -35,9 +35,9 @@ public class UserDaoTest {
 
     @Before
     public void setUp(){
-        this.user1 = new User("jaja", "김디일", "pw", Level.BASIC,1,0);
-        this.user2 = new User("mama", "김디이", "pw", Level.SILVER,55,10);
-        this.user3 = new User("ejej", "김디삼", "pw", Level.GOLD,100,40);
+        this.user1 = new User("jaja", "김디일", "pw","tobya@nate.com", Level.BASIC,1,0);
+        this.user2 = new User("mama", "김디이", "pw","tobym@nate.com", Level.SILVER,55,10);
+        this.user3 = new User("ejej", "김디삼", "pw","tobyej@nate.com", Level.GOLD,100,40);
     }
 
     @Test(expected = EmptyResultDataAccessException.class)
