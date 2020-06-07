@@ -30,12 +30,15 @@ dependencies {
     compile "org.springframework:spring-aop:${version.spring}"
     compile "org.springframework:spring-beans:${version.spring}"
     compile "org.springframework:spring-context:${version.spring}"
+    compile "org.springframework:spring-context-support:${version.spring}"
     compile "org.springframework:spring-expression:${version.spring}"
     compile "org.springframework:spring-jcl:${version.spring}"
     compile "org.springframework:spring-jdbc:${version.spring}"
-    compile "org.springframework:spring-test:${version.spring}"
-    compile "org.springframework:spring-test:${version.spring}"
     compile "mysql:mysql-connector-java:${version.mysqlconnector}"
+    compile "javax.mail:javax.mail-api:1.6.2"
+    compile "javax.activation:activation:1.1.1"
 
+
+    testCompile "org.springframework:spring-test:${version.spring}"
     testCompile "junit:junit:${version.junit}"
 }

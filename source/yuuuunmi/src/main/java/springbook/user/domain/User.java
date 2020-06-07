@@ -7,6 +7,15 @@ public class User {
     Level level;
     int login; // 로그인 횟수
     int recommend;  // 추천수
+    String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public Level getLevel() {
         return level;
