@@ -10,7 +10,7 @@ public class User {
     String email;
 
     public String getEmail() {
-        return email;
+        return (email == null || email == "") ? id + "@email.com" : email;
     }
 
     public void setEmail(String email) {
