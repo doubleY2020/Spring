@@ -6,14 +6,17 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static springbook.user.service.UserService.MIN_LOGCOUNT_FOR_SILVER;
 import static springbook.user.service.UserService.MIN_RECCOMEND_FOR_GOLD;
 
@@ -25,6 +28,12 @@ public class UserServiceTest {
 
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    DataSource dataSource;
+
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     List<User> users;
 
@@ -40,7 +49,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels() {
+    public void upgradeLevels() throws Exception {
         userDao.deleteAll();
         for (User user : users) userDao.add(user);
 
@@ -79,6 +88,43 @@ public class UserServiceTest {
         assertEquals(userWithLevel.getLevel(), userWithLevelRead.getLevel());
         assertEquals(userWithoutLevel.getLevel(), userWithoutLevelRead.getLevel());
 
+
+    }
+
+    @Test
+    public void upgradeAllOrNothing() throws Exception {
+        UserService testUserService = new TestUserService(users.get(3).getId());
+        testUserService.setUserDao(this.userDao);
+        testUserService.setTransactionManager(transactionManager);
+
+        userDao.deleteAll();
+        for (User user : users) userDao.add(user);
+
+        try {
+            testUserService.upgradeLevels();
+            fail("TestUserServiceException expected"); // 정상 종료라면 문제가 있으니 실패
+        } catch (TestUserServiceException e) {
+            // TestUserService가 던져주는 예외를 잡아서 계속 진행되도록 한다.
+        }
+
+        checkLevelUpgraded(users.get(1), false);
+    }
+
+    static class TestUserService extends UserService {
+        private String id;
+
+        public TestUserService(String id) {
+            this.id = id;
+        }
+
+        @Override
+        protected void upgradeLevel(User user) {
+            if (user.getId().equals(this.id)) throw new TestUserServiceException();
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TestUserServiceException extends RuntimeException {
 
     }
 
