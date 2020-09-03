@@ -11,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -19,6 +21,7 @@ import user.domain.Level;
 import user.domain.User;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,18 +37,19 @@ public class UserServiceTest {
     DataSource dataSource;
     @Autowired
     PlatformTransactionManager transactionManager;
-
+    @Autowired
+    MailSender mailSender;
 
     List<User> users;
 
     @Before
     public void setUp() {
         users = Arrays.asList(
-                new User("tobykim", "김토비", "pw1", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0),
-                new User("tobyU", "유토비", "pw2", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0),
-                new User("tobyGo", "고토비", "pw3", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD-1),
-                new User("tobySeo", "서토비", "pw4", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD),
-                new User("tobyChoi", "최토비", "pw5", Level.GOLD, 100, Integer.MAX_VALUE)
+                new User("onejung", "일정", "p1", "user1@ksug.org", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0),
+                new User("ingjung", "잉정", "p2", "user2@ksug.org", Level.BASIC, MIN_LOGCOUNT_FOR_SILVER, 0),
+                new User("insamjung", "인삼정", "p3", "user3@ksug.org", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD-1),
+                new User("insajung", "인사정", "p4", "user4@ksug.org", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD),
+                new User("inojung", "인오정", "p5", "user5@ksug.org", Level.GOLD, 100, Integer.MAX_VALUE)
         );
     }
 
@@ -54,6 +58,9 @@ public class UserServiceTest {
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 
+        MockMailSender mockMailSender = new MockMailSender();
+        userService.setMailSender(mockMailSender);
+
         userService.upgradeLevels();
 
         checkLevelUpgraded(users.get(0), false);
@@ -61,6 +68,11 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(2), false);
         checkLevelUpgraded(users.get(3), true);
         checkLevelUpgraded(users.get(4), false);
+
+        List<String> request = mockMailSender.getRequests();
+        assertThat(request.size(), is(2));
+        assertThat(request.get(0), is(users.get(1).getEmail()));
+        assertThat(request.get(1), is(users.get(3).getEmail()));
     }
 
     private void checkLevelUpgraded(User user, boolean upgraded) {
@@ -100,7 +112,7 @@ public class UserServiceTest {
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
         testUserService.setTransactionManager(transactionManager);
-
+        testUserService.setMailSender(mailSender);
         userDao.deleteAll();
         for(User user : users) userDao.add(user);
 
@@ -128,5 +140,21 @@ public class UserServiceTest {
     }
 
     static class TestUserServiceException extends RuntimeException {
+    }
+    static class MockMailSender implements MailSender{
+
+        // UserService로부터 전송요청을 받은 메일 주소를 저장해 두고 이를 읽을 수 있게 한다.
+        private List<String> requests = new ArrayList<String>();
+        public List<String> getRequests() { return requests; }
+
+        @Override
+        public void send(SimpleMailMessage simpleMessage) throws MailException {
+            requests.add(simpleMessage.getTo()[0]);
+        }
+
+        @Override
+        public void send(SimpleMailMessage[] simpleMessages) throws MailException {
+
+        }
     }
 }
