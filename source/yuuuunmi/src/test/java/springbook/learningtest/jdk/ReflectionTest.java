@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class ReflectionTest {
     @Test
@@ -31,7 +32,11 @@ public class ReflectionTest {
         Assert.assertEquals(hello.sayHi("Toby"), "Hi Toby");
         Assert.assertEquals(hello.sayThankYou("Toby"), "Thank You Toby");
 
-        Hello proxiedHello = new HelloUppercase(new HelloTarget());
+        Hello proxiedHello = (Hello) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class[]{Hello.class},
+                new UppercaseHandler(new HelloTarget())
+        );
         Assert.assertEquals(proxiedHello.sayHello("Toby"), "HELLO TOBY");
         Assert.assertEquals(proxiedHello.sayHi("Toby"), "HI TOBY");
         Assert.assertEquals(proxiedHello.sayThankYou("Toby"), "THANK YOU TOBY");
