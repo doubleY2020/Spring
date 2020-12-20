@@ -22,7 +22,8 @@ sourceSets {
 def version = [
         spring: '5.2.4.RELEASE',
         junit: '4.13',
-        mysqlconnector: '8.0.19'
+        mysqlconnector: '8.0.19',
+        mockito:'3.6.28'
 ]
 
 dependencies {
@@ -41,4 +42,5 @@ dependencies {
 
     testCompile "org.springframework:spring-test:${version.spring}"
     testCompile "junit:junit:${version.junit}"
+    testCompile "org.mockito:mockito-core:${version.mockito}"
 }

@@ -3,9 +3,15 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="userService" class="springbook.user.service.UserService">
-        <property name="userDao" ref="userDao"/>
+    <bean id="userService" class="springbook.user.service.TxProxyFactoryBean">
+        <property name="target" ref="userServiceImpl"/>
         <property name="transactionManager" ref="transactionManager"/>
+        <property name="pattern" value="upgradeLevels"/>
+        <property name="serviceInferface" value="springbook.user.service.UserService"/>
+    </bean>
+
+    <bean id="userServiceImpl" class="springbook.user.service.UserServiceImpl">
+        <property name="userDao" ref="userDao"/>
         <property name="mailSender" ref="mailSender"/>
     </bean>
 
