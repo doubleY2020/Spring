@@ -1,12 +1,18 @@
-package springbook.learningtest.jdk;
+package springbook.learningtest.jdk.proxy;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import springbook.learningtest.jdk.Hello;
+import springbook.learningtest.jdk.HelloTarget;
+import springbook.learningtest.jdk.UppercaseHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-public class ReflectionTest {
+public class DynamicProxyTest {
     @Test
     public void invokeMethod() throws Exception {
         String name = "String";
@@ -40,6 +46,31 @@ public class ReflectionTest {
         Assert.assertEquals(proxiedHello.sayHello("Toby"), "HELLO TOBY");
         Assert.assertEquals(proxiedHello.sayHi("Toby"), "HI TOBY");
         Assert.assertEquals(proxiedHello.sayThankYou("Toby"), "THANK YOU TOBY");
+    }
+
+
+    @Test
+    public void proxyFactoryBean() {
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+        pfBean.addAdvice(new UppercaseAdvice());
+
+        Hello proxiedHello = (Hello) pfBean.getObject();
+
+        Assert.assertEquals(proxiedHello.sayHello("Toby"), "HELLO TOBY");
+        Assert.assertEquals(proxiedHello.sayHi("Toby"), "HI TOBY");
+        Assert.assertEquals(proxiedHello.sayThankYou("Toby"), "THANK YOU TOBY");
+
+
+    }
+
+    static class UppercaseAdvice implements MethodInterceptor {
+
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+            String ret = (String) invocation.proceed(); // MethodInvocation은 메소드 정보와 함께 타깃 오브젝트를 알고 있음
+            return ret.toUpperCase();
+        }
     }
 
 }
